@@ -1,13 +1,16 @@
 package com.microservice.customer;
 
 import com.microservice.clients.fraud.FraudClient;
+import com.microservice.clients.notification.NotificationClient;
+import com.microservice.clients.notification.NotificationRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-
-public record CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate , FraudClient fraudClient) {
+@Slf4j
+public record CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate , FraudClient fraudClient , NotificationClient notificationClient) {
 
 
     public void registerCustomer(CustomerResgistrationRequest request) {
@@ -28,6 +31,16 @@ public record CustomerService(CustomerRepository customerRepository, RestTemplat
             throw new IllegalStateException("fraudster");
         }
 
-        //todo : send notification
+        //todo make it async add to queue
+        try {
+            notificationClient.sendNotification(new NotificationRequest(customer.getId(),customer.getEmail(),String.format("hi {} , welcome to microservice" , customer.getFirstName())));
+            log.info("send notification");
+        }catch (Exception e){
+
+            throw new RuntimeException("service Call failed ");
+        }
+
+
+
     }
 }
