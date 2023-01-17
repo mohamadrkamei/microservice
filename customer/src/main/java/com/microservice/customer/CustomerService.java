@@ -1,12 +1,13 @@
 package com.microservice.customer;
 
+import com.microservice.clients.fraud.FraudClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 
-public record CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate) {
+public record CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate , FraudClient fraudClient) {
 
 
     public void registerCustomer(CustomerResgistrationRequest request) {
@@ -21,13 +22,8 @@ public record CustomerService(CustomerRepository customerRepository, RestTemplat
 
         customerRepository.saveAndFlush(customer);
         // todo : check if fraudster
-        FraudCheckResponse fraudCheckResponse = restTemplate.getForObject(
-                "http://localhost:8083/api/v1/fraud/{customerId}",
-                FraudCheckResponse.class,
-                customer.getId()
-        );
-
-        if (fraudCheckResponse.isFlauder()) {
+      var fraudResponse = fraudClient.getfraud(customer.getId());
+        if (fraudResponse.isFlauder()) {
 
             throw new IllegalStateException("fraudster");
         }
