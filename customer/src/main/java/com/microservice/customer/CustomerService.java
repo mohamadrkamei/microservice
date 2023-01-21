@@ -3,16 +3,19 @@ package com.microservice.customer;
 import com.microservice.clients.fraud.FraudClient;
 import com.microservice.clients.notification.NotificationClient;
 import com.microservice.clients.notification.NotificationRequest;
-import lombok.AllArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service
+
 @Slf4j
-public record CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate , FraudClient fraudClient , NotificationClient notificationClient) {
+@Service
+public record CustomerService(CustomerRepository customerRepository, RestTemplate restTemplate , FraudClient fraudClient , NotificationClient notificationClient)  implements customerServiceInterface{
 
 
+    @Override
     public void registerCustomer(CustomerResgistrationRequest request) {
 
         Customer customer = Customer.builder()
@@ -43,4 +46,6 @@ public record CustomerService(CustomerRepository customerRepository, RestTemplat
 
 
     }
+
+
 }
